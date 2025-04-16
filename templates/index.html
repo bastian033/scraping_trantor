@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda de Empresas</title>
+    <link rel="stylesheet" href="/static/css/estilos.css">
+    <script defer src="/static/js/script.js"></script>
+    <style>
+        .titulo {
+            text-align: center;
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="titulo" style="color: blue; text-align: center;">Búsqueda de Empresas</h1>
+    </header>
+    <main>
+        <form id="searchForm">
+            <label for="razon_social">Ingrese la Razón Social de la empresa:</label>
+            <input type="text" id="razon_social" name="razon_social" placeholder="Ejemplo: Directorio EmpresasAgricolas.cl SpA" required>
+            <button type="submit">Buscar</button>
+        </form>
+        <div id="results"></div>
+    </main>
+</body>
+</html>
