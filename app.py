@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Configuración de MongoDB
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 client = MongoClient(MONGO_URI)
-db = client['local']  # Base de datos 'local'
+db = client['DatosEmpresas']  # Base de datos 'local'
 
 @app.route('/')
 def index():
