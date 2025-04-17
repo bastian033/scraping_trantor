@@ -132,9 +132,9 @@ class DiarioOficialScraper:
 
     def limpieza_y_patrones(self):
         patrones = [
-            r"\b\d{1,2}-\d{1,2}-\d{4}\b",  # Fechas en formato dd-mm-yyyy
-            r"\bRUT\s?\d{1,2}\.\d{3}\.\d{3}-[0-9kK]\b",  # RUTs chilenos
-            r"\b[A-Z][a-z]+\s[A-Z][a-z]+\b",  # Nombres propios (ejemplo)
+            r"\b\d{1,2}-\d{1,2}-\d{4}\b", 
+            r"\bRUT\s?\d{1,2}\.\d{3}\.\d{3}-[0-9kK]\b",  # RUTs 
+            r"\b[A-Z][a-z]+\s[A-Z][a-z]+\b",  # Nombres propios 
         ]
 
         resultados_totales = []
