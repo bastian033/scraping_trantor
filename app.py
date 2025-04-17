@@ -4,10 +4,9 @@ import os
 
 app = Flask(__name__)
 
-# Configuración de MongoDB
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://Admin:WTUOB6XURdpxnF9d@scrapingtrantor.bj3aqkm.mongodb.net/DatosEmpresas?retryWrites=true&w=majority")
 client = MongoClient(MONGO_URI)
-db = client['DatosEmpresas']  # Base de datos 'local'
+db = client['DatosEmpresas']  
 
 @app.route('/')
 def index():
@@ -19,16 +18,14 @@ def buscar_empresa():
     if not razon_social:
         return jsonify({"error": "Debe proporcionar una razon social para buscar"}), 400
 
-    # Lista de colecciones a buscar
     colecciones = [f"DatosGob{anio}" for anio in range(2013, 2026)]
     resultados_totales = []
 
-    # Iterar sobre cada colección y buscar
     for coleccion_nombre in colecciones:
         coleccion = db[coleccion_nombre]
         resultados = list(coleccion.find({"Razon Social": {"$regex": razon_social, "$options": "i"}}))
         for resultado in resultados:
-            resultado["_id"] = str(resultado["_id"])  # Convertir ObjectId a string para JSON
+            resultado["_id"] = str(resultado["_id"])  
         resultados_totales.extend(resultados)
 
     if not resultados_totales:
@@ -37,4 +34,5 @@ def buscar_empresa():
     return jsonify(resultados_totales), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.getenv("PORT", 5000))  
+    app.run(host='0.0.0.0', port=port, debug=True)
