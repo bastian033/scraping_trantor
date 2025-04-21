@@ -35,21 +35,23 @@ def buscar_empresa():
         if rut:
             filtro["RUT"] = rut  # Buscar el RUT exacto
 
+        print(f"Filtro de búsqueda: {filtro}")  # Depuración
         resultados = list(coleccion.find(filtro))
         for resultado in resultados:
             resultado["_id"] = str(resultado["_id"])  # Convertir ObjectId a string
-        resultados_totales.extend(resultados)
+            resultados_totales.append(resultado)
 
     if not resultados_totales:
         return jsonify({"message": "No se encontraron resultados para los criterios proporcionados"}), 404
 
     return jsonify(resultados_totales), 200
-  
+
 def normalizar_rut(rut):
     """
     Normaliza el RUT eliminando puntos y dejando solo el guion.
     """
     return rut.replace(".", "").strip()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
