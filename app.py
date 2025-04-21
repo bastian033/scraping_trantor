@@ -37,6 +37,7 @@ def buscar_empresa():
 
         print(f"Filtro de búsqueda: {filtro}")  # Depuración
         resultados = list(coleccion.find(filtro))
+        print(f"Resultados encontrados: {resultados}")  # Depuración
         for resultado in resultados:
             resultado["_id"] = str(resultado["_id"])  # Convertir ObjectId a string
             resultados_totales.append(resultado)
@@ -45,7 +46,6 @@ def buscar_empresa():
         return jsonify({"message": "No se encontraron resultados para los criterios proporcionados"}), 404
 
     return jsonify(resultados_totales), 200
-
 def normalizar_rut(rut):
     """
     Normaliza el RUT eliminando puntos y dejando solo el guion.
