@@ -15,7 +15,7 @@ def index():
 @app.route('/buscar', methods=['GET'])
 def buscar_empresa():
     razon_social = request.args.get('razon_social')
-    rut = request.args.get('rut')
+    rut = request.args.get('RUT')
     if not razon_social and not rut:
         return jsonify({"error": "Debe proporcionar una razon social para buscar"}), 400
 
