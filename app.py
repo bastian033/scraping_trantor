@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 import os
+import re
 
 app = Flask(__name__)
 
@@ -13,56 +14,45 @@ def index():
     return render_template('index.html')
 @app.route('/buscar', methods=['GET'])
 def buscar_empresa():
-    """
-    Endpoint para buscar empresas por razón social o RUT.
-    """
-    razon_social = request.args.get('razon_social')
-    rut = request.args.get('RUT')
+    entrada = request.args.get('entrada')  
 
-    # Validar que al menos uno de los parámetros esté presente
-    if not razon_social and not rut:
-        return jsonify({"error": "Debe proporcionar una razón social o un RUT para buscar"}), 400
+    if not entrada:
+        return jsonify({"error": "Debe proporcionar un RUT o una razón social para buscar"}), 400
 
-    # Normalizar el RUT si se proporciona
-    if rut:
-        rut = normalizar_rut(rut)  # Normalizar el RUT ingresado
-        print(f"RUT normalizado: {rut}")  # Depuración
+    if es_rut(entrada):
+        rut = normalizar_rut(entrada)
+        print(f"Detectado como RUT: {rut}")  
+        filtro = {"RUT": rut} 
+    else:
+        razon_social = entrada
+        print(f"Detectado como Razón Social: {razon_social}")  
+        filtro = {"Razon Social": {"$regex": razon_social, "$options": "i"}}  
 
-    # Definir las colecciones a buscar
     colecciones = [f"DatosGob{anio}" for anio in range(2013, 2026)]
     resultados_totales = []
 
-    # Iterar sobre las colecciones y buscar coincidencias
     for coleccion_nombre in colecciones:
         coleccion = db[coleccion_nombre]
 
-        # Construir el filtro dinámicamente
-        filtro = {}
-        if razon_social:
-            filtro["Razon Social"] = {"$regex": razon_social, "$options": "i"}  # Búsqueda insensible a mayúsculas
-        if rut:
-            filtro["RUT"] = rut  # Buscar el RUT exacto
-
-        print(f"Filtro de búsqueda: {filtro}")  # Depuración
-
-        # Realizar la búsqueda en la colección
+        print(f"Filtro de búsqueda: {filtro}") 
         resultados = list(coleccion.find(filtro))
-        print(f"Resultados encontrados en {coleccion_nombre}: {resultados}")  # Depuración
+        print(f"Resultados encontrados en {coleccion_nombre}: {resultados}") 
 
-        # Convertir ObjectId a string y agregar resultados a la lista total
         for resultado in resultados:
-            resultado["_id"] = str(resultado["_id"])  # Convertir ObjectId a string
+            resultado["_id"] = str(resultado["_id"])  
             resultados_totales.append(resultado)
 
-    # Si no se encontraron resultados, devolver un mensaje adecuado
     if not resultados_totales:
         return jsonify({"message": "No se encontraron resultados para los criterios proporcionados"}), 404
 
-    # Devolver los resultados encontrados
     return jsonify(resultados_totales), 200
-
 def normalizar_rut(rut):
     return rut.replace(".", "").replace(" ", "").strip()
+
+def es_rut(texto):
+
+    patron_rut = r"^\d{7,8}-[0-9kK]$" 
+    return re.match(patron_rut, texto) is not None
 
 
 if __name__ == '__main__':
