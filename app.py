@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://Admin:WTUOB6XURdpxnF9d@scrapingtrantor.bj3aqkm.mongodb.net/DatosEmpresas?retryWrites=true&w=majority")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 db = client['DatosEmpresas']  
 
@@ -15,7 +15,8 @@ def index():
 @app.route('/buscar', methods=['GET'])
 def buscar_empresa():
     razon_social = request.args.get('razon_social')
-    if not razon_social:
+    rut = request.args.get('rut')
+    if not razon_social and not rut:
         return jsonify({"error": "Debe proporcionar una razon social para buscar"}), 400
 
     colecciones = [f"DatosGob{anio}" for anio in range(2013, 2026)]
@@ -23,16 +24,21 @@ def buscar_empresa():
 
     for coleccion_nombre in colecciones:
         coleccion = db[coleccion_nombre]
-        resultados = list(coleccion.find({"Razon Social": {"$regex": razon_social, "$options": "i"}}))
+
+        filtro = {}
+        if razon_social:
+            filtro["Razon Social"] = {"$regex": razon_social, "$options": "i"}
+        if rut:
+            filtro["RUT"] = {"$regex": rut, "$options": "i"}
+
+        resultados = list(coleccion.find(filtro))
         for resultado in resultados:
-            resultado["_id"] = str(resultado["_id"])  
+            resultado["_id"] = str(resultado["_id"])  # Convertir ObjectId a string
         resultados_totales.extend(resultados)
 
     if not resultados_totales:
-        return jsonify({"message": "No se encontraron resultados para la razón social proporcionada"}), 404
+        return jsonify({"message": "No se encontraron resultados para los criterios proporcionados"}), 404
 
     return jsonify(resultados_totales), 200
-
 if __name__ == '__main__':
-    port = int(os.getenv("PORT", 5000))  
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(debug=True)
