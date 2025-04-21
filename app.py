@@ -21,7 +21,7 @@ def buscar_empresa():
         return jsonify({"error": "Debe proporcionar una razón social o un RUT para buscar"}), 400
 
     if rut:
-        rut = normalizar_rut(rut)  
+        rut = normalizar_rut(rut)  # Normalizar el RUT ingresado
 
     colecciones = [f"DatosGob{anio}" for anio in range(2013, 2026)]
     resultados_totales = []
@@ -33,11 +33,11 @@ def buscar_empresa():
         if razon_social:
             filtro["Razon Social"] = {"$regex": razon_social, "$options": "i"}
         if rut:
-            filtro["RUT"] = {"$regex": rut, "$options": "i"}  
+            filtro["RUT"] = rut  # Buscar el RUT exacto
 
         resultados = list(coleccion.find(filtro))
         for resultado in resultados:
-            resultado["_id"] = str(resultado["_id"]) 
+            resultado["_id"] = str(resultado["_id"])  # Convertir ObjectId a string
         resultados_totales.extend(resultados)
 
     if not resultados_totales:
@@ -47,11 +47,9 @@ def buscar_empresa():
   
 def normalizar_rut(rut):
     """
-    Normaliza el RUT eliminando puntos y guion.
+    Normaliza el RUT eliminando puntos y dejando solo el guion.
     """
-    return rut.replace(".", "").replace("-", "").strip()
-
-
+    return rut.replace(".", "").strip()
 
 if __name__ == '__main__':
     app.run(debug=True)
